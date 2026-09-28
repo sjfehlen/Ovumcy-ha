@@ -1,0 +1,39 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Ovumcy",
+        "description": "Enter the URL of your Ovumcy instance and the account to sign in as. Ovumcy has no API-key auth, so this integration uses the same email/password as the web login.",
+        "data": {
+          "base_url": "Base URL (e.g. https://cycle.fehlenfusion.com)",
+          "email": "Email",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password (or local sign-in is disabled on this instance).",
+      "cannot_connect": "Could not connect to the Ovumcy instance."
+    },
+    "abort": {
+      "already_configured": "This Ovumcy account is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_cycle_day": { "name": "Current cycle day" },
+      "current_phase": { "name": "Current phase" },
+      "current_fertility": { "name": "Fertility status" },
+      "next_period_start": { "name": "Next period (predicted)" },
+      "ovulation_date": { "name": "Ovulation date" },
+      "fertility_window_start": { "name": "Fertility window start" },
+      "fertility_window_end": { "name": "Fertility window end" },
+      "average_cycle_length": { "name": "Average cycle length" },
+      "luteal_phase": { "name": "Luteal phase length" }
+    },
+    "binary_sensor": {
+      "period_active": { "name": "Period active" },
+      "ovulation_confirmed": { "name": "Ovulation confirmed" }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "domain": "ovumcy",
+  "name": "Ovumcy",
+  "codeowners": ["@sjfehlen"],
+  "config_flow": true,
+  "documentation": "https://github.com/sjfehlen/Ovumcy-ha",
+  "issue_tracker": "https://github.com/sjfehlen/Ovumcy-ha/issues",
+  "iot_class": "local_polling",
+  "requirements": ["aiohttp"],
+  "version": "0.1.0"
+}
