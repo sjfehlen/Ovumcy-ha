@@ -101,7 +101,9 @@ SENSOR_DESCRIPTIONS: tuple[OvumcySensorEntityDescription, ...] = (
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    coordinator: OvumcyDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: OvumcyDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id][
+        "coordinator"
+    ]
     async_add_entities(
         OvumcySensor(coordinator, entry, description)
         for description in SENSOR_DESCRIPTIONS

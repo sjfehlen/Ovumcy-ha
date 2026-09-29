@@ -3,6 +3,7 @@
 DOMAIN = "ovumcy"
 
 CONF_BASE_URL = "base_url"
+CONF_IP_OVERRIDE = "ip_override"
 
 DEFAULT_SCAN_INTERVAL_MINUTES = 60
 

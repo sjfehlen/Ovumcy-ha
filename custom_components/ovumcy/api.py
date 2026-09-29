@@ -16,12 +16,35 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import urlparse
 
 import aiohttp
+from yarl import URL
 
 from .const import AUTH_COOKIE, CSRF_COOKIE, CSRF_HEADER
+from .resolver import StaticHostResolver
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def build_session(hass, base_url: str, ip_override: str | None) -> aiohttp.ClientSession:
+    """Build a cookie-jar-enabled session, optionally pinning base_url's host to an IP.
+
+    Without `ip_override`, uses Home Assistant's shared `async_create_clientsession`
+    helper (closed by HA itself on shutdown). With it, connector customization is
+    required, which that helper doesn't expose, so this returns a dedicated session
+    the caller owns and must close (see `async_unload_entry` in __init__.py).
+    """
+    if not ip_override:
+        from homeassistant.helpers.aiohttp_client import async_create_clientsession
+
+        return async_create_clientsession(hass)
+
+    hostname = urlparse(base_url).hostname
+    if not hostname:
+        raise ValueError(f"could not parse hostname out of base_url: {base_url}")
+    connector = aiohttp.TCPConnector(resolver=StaticHostResolver(hostname, ip_override))
+    return aiohttp.ClientSession(connector=connector)
 
 
 class OvumcyAuthError(Exception):
@@ -52,7 +75,7 @@ class OvumcyClient:
         """Issue a GET to obtain a fresh ovumcy_csrf cookie, return its value."""
         async with self._session.get(f"{self._base_url}/login") as resp:
             resp.raise_for_status()
-            cookie = self._session.cookie_jar.filter_cookies(self._base_url).get(
+            cookie = self._session.cookie_jar.filter_cookies(URL(self._base_url)).get(
                 CSRF_COOKIE
             )
             if cookie is None:
@@ -85,7 +108,7 @@ class OvumcyClient:
                     "account has 2FA enabled — not supported by this integration"
                 )
 
-        auth_cookie = self._session.cookie_jar.filter_cookies(self._base_url).get(
+        auth_cookie = self._session.cookie_jar.filter_cookies(URL(self._base_url)).get(
             AUTH_COOKIE
         )
         if auth_cookie is None:
