@@ -45,6 +45,13 @@ yourself:
 3. Settings → Devices & Services → Add Integration → "Ovumcy"
 4. Enter your instance's base URL (e.g. `https://cycle.fehlenfusion.com`) and the account
    email/password
+5. If setup fails with "Could not connect" and you've confirmed the URL works in a browser,
+   your HA instance's DNS may not be resolving the hostname (this can happen on HAOS VMs not
+   using the same resolver as other LAN clients). Set the optional **IP override** field to
+   the server's LAN IP — this pins only the network connection to that IP while still using
+   the real hostname for HTTPS/cert verification, so it's safe with `COOKIE_SECURE=true`
+   deployments (a bare `http://ip:port` base URL is not, since the auth cookie won't persist
+   over plain HTTP)
 
 ## Entities
 
