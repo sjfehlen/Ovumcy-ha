@@ -90,17 +90,29 @@ class OvumcyClient:
             "password": self._password,
             "remember_me": True,
         }
-        headers = {CSRF_HEADER: csrf_token, "Accept": "application/json"}
+        headers = {
+            CSRF_HEADER: csrf_token,
+            "Accept": "application/json",
+            # Ovumcy's CSRF check also validates Origin/Referer against the
+            # real host — a browser sends these on every form POST, but a
+            # bare aiohttp client doesn't send either unless told to. Without
+            # this, every state-changing request 403s with an empty/HTML
+            # body regardless of the CSRF token being otherwise correct.
+            "Origin": self._base_url,
+            "Referer": f"{self._base_url}/login",
+        }
         async with self._session.post(
             f"{self._base_url}/api/v1/sessions", json=payload, headers=headers
         ) as resp:
             if resp.status == 401:
                 raise OvumcyAuthError("invalid Ovumcy credentials")
             if resp.status == 403:
-                body = await resp.json(content_type=None)
-                raise OvumcyAuthError(
-                    body.get("error", "local sign-in unavailable on this deployment")
-                )
+                try:
+                    body = await resp.json(content_type=None)
+                    message = body.get("error", "local sign-in unavailable on this deployment")
+                except (ValueError, aiohttp.ContentTypeError):
+                    message = "CSRF/origin check rejected the request (HTTP 403, non-JSON body)"
+                raise OvumcyAuthError(message)
             resp.raise_for_status()
             body = await resp.json(content_type=None)
             if body.get("requires_totp"):
