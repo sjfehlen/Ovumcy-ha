@@ -3,38 +3,68 @@
     "step": {
       "user": {
         "title": "Connect to Ovumcy",
-        "description": "Enter the URL of your Ovumcy instance and the account to sign in as. Ovumcy has no API-key auth, so this integration uses the same email/password as the web login.",
+        "description": "Enter the URL of your Ovumcy instance and an API key. Create the key in Ovumcy under Settings → API key — a read-only key is enough — and paste it here; it is shown only once.",
         "data": {
           "base_url": "Base URL (e.g. https://cycle.fehlenfusion.com)",
-          "email": "Email",
-          "password": "Password",
+          "api_key": "API key (starts with ovk_)",
           "ip_override": "IP override (optional) — pin the base URL's hostname to this IP if DNS can't resolve it (e.g. 10.5.1.57). HTTPS, the Host header, and cert checks still use the hostname above; only the network connection itself uses this IP."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Ovumcy needs a new API key",
+        "description": "The API key for {base_url} was revoked, replaced or is missing. Generate a new key in Ovumcy under Settings → API key and paste it here.",
+        "data": {
+          "api_key": "API key (starts with ovk_)"
         }
       }
     },
     "error": {
-      "invalid_auth": "Invalid email or password (or local sign-in is disabled on this instance).",
+      "invalid_auth": "Ovumcy rejected this API key. It may have been revoked or replaced.",
+      "invalid_key_format": "That does not look like an Ovumcy API key — it should start with ovk_.",
       "cannot_connect": "Could not connect to the Ovumcy instance."
     },
     "abort": {
-      "already_configured": "This Ovumcy account is already configured."
+      "already_configured": "This Ovumcy account is already configured.",
+      "reauth_successful": "The new API key was accepted."
     }
   },
   "entity": {
     "sensor": {
-      "current_cycle_day": { "name": "Current cycle day" },
-      "current_phase": { "name": "Current phase" },
-      "current_fertility": { "name": "Fertility status" },
-      "next_period_start": { "name": "Next period (predicted)" },
-      "ovulation_date": { "name": "Ovulation date" },
-      "fertility_window_start": { "name": "Fertility window start" },
-      "fertility_window_end": { "name": "Fertility window end" },
-      "average_cycle_length": { "name": "Average cycle length" },
-      "luteal_phase": { "name": "Luteal phase length" }
+      "current_cycle_day": {
+        "name": "Current cycle day"
+      },
+      "current_phase": {
+        "name": "Current phase"
+      },
+      "current_fertility": {
+        "name": "Fertility status"
+      },
+      "next_period_start": {
+        "name": "Next period (predicted)"
+      },
+      "ovulation_date": {
+        "name": "Ovulation date"
+      },
+      "fertility_window_start": {
+        "name": "Fertility window start"
+      },
+      "fertility_window_end": {
+        "name": "Fertility window end"
+      },
+      "average_cycle_length": {
+        "name": "Average cycle length"
+      },
+      "luteal_phase": {
+        "name": "Luteal phase length"
+      }
     },
     "binary_sensor": {
-      "period_active": { "name": "Period active" },
-      "ovulation_confirmed": { "name": "Ovulation confirmed" }
+      "period_active": {
+        "name": "Period active"
+      },
+      "ovulation_confirmed": {
+        "name": "Ovulation confirmed"
+      }
     }
   }
 }

@@ -4,8 +4,11 @@ from __future__ import annotations
 from datetime import timedelta
 import logging
 
+import aiohttp
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import OvumcyApiError, OvumcyAuthError, OvumcyClient
@@ -31,6 +34,10 @@ class OvumcyDataUpdateCoordinator(DataUpdateCoordinator[dict]):
         try:
             return await self.client.async_get_stats_overview()
         except OvumcyAuthError as err:
-            raise UpdateFailed(f"Ovumcy authentication failed: {err}") from err
+            # A revoked or replaced key will not fix itself: start Home
+            # Assistant's re-authentication flow instead of retrying forever.
+            raise ConfigEntryAuthFailed(str(err)) from err
         except OvumcyApiError as err:
             raise UpdateFailed(f"Ovumcy API error: {err}") from err
+        except aiohttp.ClientError as err:
+            raise UpdateFailed(f"Could not reach Ovumcy: {err}") from err

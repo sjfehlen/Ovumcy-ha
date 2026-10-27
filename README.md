@@ -6,16 +6,29 @@ phase, fertility status, and predicted period/ovulation dates as sensors.
 
 ## Auth model — read this first
 
-Ovumcy has no API-key or service-account token. This integration signs in with the same
-email/password you'd use on the web login, and stores them in the config entry — the same
-pattern many camera/NAS integrations use when the vendor never exposed a token API. The session
-is requested with `remember_me: true` (30-day cookie); on a `401` the integration re-authenticates
-automatically and retries once.
+The integration authenticates with a **per-account API key**, sent as `Authorization: Bearer <key>`.
+There is no login, no session cookie and no stored password. You create the key in Ovumcy under
+**Settings → API key**, choose a scope, and paste it into Home Assistant; it is shown only once.
 
-If you'd rather not store a password in Home Assistant, don't install this — use Ovumcy's
-built-in [webhook reminders](https://github.com/ovumcy/ovumcy-web/blob/main/docs/notifications.md)
-or its `.ics` calendar feed with HA's calendar integration instead. Both need zero credentials
-in HA.
+**This needs an Ovumcy build that supports API keys** — the
+[sjfehlen/ovumcy-web](https://github.com/sjfehlen/ovumcy-web) fork. Upstream
+`ovumcy/ovumcy-web` has no API keys, so on a stock install this integration cannot sign in.
+
+- **Scope:** a **read-only** key is all this integration needs (it only calls
+  `GET /api/v1/stats/overview`). Prefer it: a leaked read-only key can't change anything.
+- **Revoking or replacing the key** in Ovumcy makes the next poll fail with "rejected", and Home
+  Assistant then asks you for a new key (a "Re-authenticate" prompt
+  under Settings → Devices & Services) instead of retrying forever.
+- **2FA and SSO accounts work**, because a key skips the sign-in step entirely.
+- **The key is stored in Home Assistant's config entry**, like any other token. Anyone who can read
+  your HA config storage can read it, so treat HA backups accordingly.
+
+Upgrading from 0.1.x (email/password)? Your existing entry keeps its URL, drops the stored
+password, and asks for an API key on the next start — no need to delete and re-add it.
+
+If you'd rather not keep a token in Home Assistant, don't install this — use Ovumcy's built-in
+[webhook reminders](https://github.com/ovumcy/ovumcy-web/blob/main/docs/notifications.md) or its
+`.ics` calendar feed with HA's calendar integration instead.
 
 ## This is reproductive-health data
 
@@ -42,9 +55,9 @@ yourself:
 
 1. HACS → Integrations → ⋮ → Custom repositories → add this repo URL, category "Integration"
 2. Install "Ovumcy", restart Home Assistant
-3. Settings → Devices & Services → Add Integration → "Ovumcy"
-4. Enter your instance's base URL (e.g. `https://cycle.fehlenfusion.com`) and the account
-   email/password
+3. In Ovumcy: Settings → API key → choose **Read only** → Generate, and copy the key
+4. Settings → Devices & Services → Add Integration → "Ovumcy"; enter your instance's base URL
+   (e.g. `https://cycle.fehlenfusion.com`) and paste the key
 5. If setup fails with "Could not connect" and you've confirmed the URL works in a browser,
    your HA instance's DNS may not be resolving the hostname (this can happen on HAOS VMs not
    using the same resolver as other LAN clients). Set the optional **IP override** field to
@@ -74,12 +87,6 @@ to stand behind (see `suppression` in the API response) rather than guessing. Se
 
 ## Not supported
 
-- Accounts with 2FA enabled (the login flow doesn't handle the TOTP challenge step)
-- OIDC-only deployments (`OIDC_ENABLED=true` with local sign-in disabled) — this integration only
-  does local email/password login
-
-## Development
-
-This was scaffolded against Ovumcy v1.9.2's `docs/openapi.yaml`. If `stats/overview`'s schema
-changes upstream, `custom_components/ovumcy/sensor.py`'s `value_fn` lambdas are the only place
-that needs updating.
+- Writing data. A "read and log periods" key exists in Ovumcy, but this integration only reads;
+  it does not expose start/end-period actions.
+- Anything that needs more than `GET /api/v1/stats/overview`.
