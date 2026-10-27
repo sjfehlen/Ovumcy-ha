@@ -4,6 +4,24 @@ Custom integration (HACS-installable) for [Ovumcy](https://github.com/ovumcy/ovu
 self-hosted menstrual cycle tracker. Polls `GET /api/v1/stats/overview` and exposes cycle day,
 phase, fertility status, and predicted period/ovulation dates as sensors.
 
+> [!WARNING]
+> **Disclaimer.** This is an unofficial, community-built integration. It is not made, endorsed or
+> supported by the Ovumcy project. It is provided as is, with no warranty.
+>
+> **Works only with a fork, for now.** It authenticates with a per-account API key, which stock
+> Ovumcy does not have. It currently works only with the
+> [sjfehlen/ovumcy-web](https://github.com/sjfehlen/ovumcy-web) fork, which adds API keys. It will
+> not connect to upstream `ovumcy/ovumcy-web`.
+>
+> **Not medical advice, and not contraception.** The phases, fertility status and predicted dates
+> it shows are estimates calculated by Ovumcy from the data entered. They can be wrong, and must
+> not be used to avoid or achieve pregnancy, to diagnose anything, or to make medical decisions.
+> Talk to a healthcare professional for any of those.
+>
+> **Sensitive data.** The entities carry reproductive-health information. Anyone with access to
+> your Home Assistant (users, backups, voice assistants, dashboards, automations) may be able to
+> see it. See [This is reproductive-health data](#this-is-reproductive-health-data) below.
+
 ## Auth model — read this first
 
 The integration authenticates with a **per-account API key**, sent as `Authorization: Bearer <key>`.
