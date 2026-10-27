@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import date
 import logging
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EMAIL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -18,6 +18,16 @@ from .const import CONF_BASE_URL, DOMAIN
 from .coordinator import OvumcyDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _as_date(value: Any) -> date | None:
+    """Ovumcy sends dates as ISO strings; a date sensor needs a real date."""
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -45,7 +55,7 @@ SENSOR_DESCRIPTIONS: tuple[OvumcySensorEntityDescription, ...] = (
         translation_key="current_fertility",
         icon="mdi:egg",
         device_class="enum",
-        options=["fertile", "not_fertile", "unknown"],
+        options=["fertile", "outside_estimated_window", "unknown"],
         value_fn=lambda d: d.get("current_fertility"),
     ),
     OvumcySensorEntityDescription(
@@ -53,14 +63,14 @@ SENSOR_DESCRIPTIONS: tuple[OvumcySensorEntityDescription, ...] = (
         translation_key="next_period_start",
         icon="mdi:calendar-arrow-right",
         device_class="date",
-        value_fn=lambda d: d.get("next_period_start"),
+        value_fn=lambda d: _as_date(d.get("next_period_start")),
     ),
     OvumcySensorEntityDescription(
         key="ovulation_date",
         translation_key="ovulation_date",
         icon="mdi:calendar-star",
         device_class="date",
-        value_fn=lambda d: d.get("ovulation_date"),
+        value_fn=lambda d: _as_date(d.get("ovulation_date")),
     ),
     OvumcySensorEntityDescription(
         key="fertility_window_start",
@@ -68,7 +78,7 @@ SENSOR_DESCRIPTIONS: tuple[OvumcySensorEntityDescription, ...] = (
         icon="mdi:calendar-start",
         device_class="date",
         entity_registry_enabled_default=False,
-        value_fn=lambda d: d.get("fertility_window_start"),
+        value_fn=lambda d: _as_date(d.get("fertility_window_start")),
     ),
     OvumcySensorEntityDescription(
         key="fertility_window_end",
@@ -76,7 +86,7 @@ SENSOR_DESCRIPTIONS: tuple[OvumcySensorEntityDescription, ...] = (
         icon="mdi:calendar-end",
         device_class="date",
         entity_registry_enabled_default=False,
-        value_fn=lambda d: d.get("fertility_window_end"),
+        value_fn=lambda d: _as_date(d.get("fertility_window_end")),
     ),
     OvumcySensorEntityDescription(
         key="average_cycle_length",
@@ -127,7 +137,7 @@ class OvumcySensor(CoordinatorEntity[OvumcyDataUpdateCoordinator], SensorEntity)
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Ovumcy ({entry.data.get(CONF_EMAIL)})",
+            name=entry.title,
             manufacturer="Ovumcy",
             configuration_url=entry.data.get(CONF_BASE_URL),
         )

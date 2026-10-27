@@ -90,7 +90,7 @@ yourself:
 |---|---|---|
 | `sensor.*_current_cycle_day` | Yes | `current_cycle_day` |
 | `sensor.*_current_phase` | Yes | `current_phase` (menstrual/follicular/ovulation/luteal/unknown) |
-| `sensor.*_current_fertility` | Yes | `current_fertility` (fertile/not_fertile/unknown) |
+| `sensor.*_current_fertility` | Yes | `current_fertility` (fertile/outside_estimated_window/unknown — never "not fertile") |
 | `sensor.*_next_period_start` | Yes | `next_period_start` (projected, may be null) |
 | `sensor.*_ovulation_date` | Yes | `ovulation_date` (projected or BBT-confirmed) |
 | `binary_sensor.*_period_active` | Yes | derived: `current_phase == "menstrual"` |

@@ -34,10 +34,22 @@
         "name": "Current cycle day"
       },
       "current_phase": {
-        "name": "Current phase"
+        "name": "Current phase",
+        "state": {
+          "menstrual": "Menstrual",
+          "follicular": "Follicular",
+          "ovulation": "Ovulation",
+          "luteal": "Luteal",
+          "unknown": "Unknown"
+        }
       },
       "current_fertility": {
-        "name": "Fertility status"
+        "name": "Fertility status",
+        "state": {
+          "fertile": "In estimated fertile window",
+          "outside_estimated_window": "Outside estimated window",
+          "unknown": "Unknown"
+        }
       },
       "next_period_start": {
         "name": "Next period (predicted)"

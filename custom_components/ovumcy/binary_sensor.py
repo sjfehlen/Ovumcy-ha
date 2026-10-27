@@ -11,7 +11,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EMAIL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -74,7 +73,7 @@ class OvumcyBinarySensor(
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Ovumcy ({entry.data.get(CONF_EMAIL)})",
+            name=entry.title,
             manufacturer="Ovumcy",
             configuration_url=entry.data.get(CONF_BASE_URL),
         )
